@@ -1,7 +1,7 @@
 ---
 bc-version: [all]
 domain: data-modeling
-keywords: [job-queue, tableextension, flowfield, calcformula, cleanup, retry, buffer, business-invariant, authoritative-state]
+keywords: [job-queue-entry, recurring-job, calcformula-exist, isempty]
 technologies: [al]
 countries: [w1]
 application-area: [all]
@@ -11,33 +11,28 @@ application-area: [all]
 
 ## Description
 
-An AL table extension can add fields to an extensible standard table, but that capability does not establish that the table owns their business meaning. An `exist` FlowField over `Job Queue Entry`, an import buffer, or an integration log proves only that matching records exist; recalculating it cannot prove that a business obligation has been resolved. A technically correct calculation can therefore change a business result when an execution record is removed, recreated, or retried, with the underlying business facts unchanged.
+Business Central's normal successful finalization removes a non-recurring Job Queue Entry. An `exist` FlowField over that entry then correctly returns false, even if the handler recorded a business issue that remains unresolved. This rule addresses business-state dependence on the lifetime of execution records, including custom staging or log rows that a visible cleanup path removes.
 
 ## Best Practice
 
-Functional entities own business meaning, invariants, and outcomes; technical entities own execution mechanics. This is a design recommendation grounded in AL's record and FlowField semantics, not a platform prohibition on extending standard tables.
+Persist an unresolved business issue on the entity that owns its resolution, or on a domain record with the required lifetime. A queue entry can reference that owner; deleting the entry must not resolve the issue. A standard business-table extension is appropriate when the added state belongs to that entity.
 
-- For added fields or changed state consumers, identify the authoritative business fact, its owner, and the owner's responsibility and lifecycle. Apply this to standard and custom tables, including changes with no schema change.
-- Extend a standard table when the added data belongs to that entity's responsibility and lifecycle. Customer preferences can belong to Customer; a queue row's retry settings belong to execution. Use a separate entity when identity, invariants, or retention require one, rather than merely moving the same dependency to another table.
-- Trace the writer, authoritative reader, and relevant deletion, retention, rebuild, retry, or cancellation path. With business facts unchanged, those technical operations must not resolve an obligation or replace a domain decision. Retaining a technical row indefinitely cannot repair a meaning mismatch.
-- Keep stable domain references, correlation data, and replay-safe checkpoints on technical records when their loss or reconstruction preserves the business invariant and required recovery. Disposable caches are valid when consumers fall back to the domain authority. Implementation metadata on a business entity is valid when it enforces that entity's own invariant, such as a concurrency version.
-- Allow execution to advance business state through a validated domain transition. A successful retry may complete the work; a transport acknowledgement alone establishes only its documented transport meaning.
-- Require visible evidence of the authoritative consumer and the responsibility or lifecycle mismatch before reporting a defect. Missing context, a technical-sounding field name, or `tableextension` alone is insufficient. For existing data, account for migration and consumers before changing ownership.
+- Establish the actual execution-record lifecycle. In the default Job Queue path, successful non-recurring jobs are removed and recurring jobs are rescheduled. On Hold, manual recurrence, or an event subscriber handling cleanup can alter that path; do not assume every job is deleted.
+- Trace the business-facing `exist`, `IsEmpty`, or equivalent existence read to the records it uses. Report a defect only when an identified technical deletion path changes the business result without satisfying the business resolution condition.
+- Distinguish an opened obligation from a derived value. In the samples, the indicator means an inspection has opened an unresolved contact issue; it is not an email-validity flag. A new customer has no opened issue until inspection. Once opened, the issue remains until the explicit resolution command validates a nonblank email.
+- Technical indicators such as "a job is scheduled" may legitimately depend on queue existence. Stable references, disposable execution metadata, and caches whose readers fall back to domain data are also valid. A table extension, ordinary FlowField, or buffer name alone is not evidence of this defect.
+- When the supplied source and documented lifecycle do not establish the business consumer and deletion/resolution mismatch, emit no ownership finding. Existing persisted data needs a migration assessment before changing its owner.
 
-See sample: [`business-state-must-have-a-domain-owner.good.al`](business-state-must-have-a-domain-owner.good.al). Customer owns the repair indicator; removing an inactive job leaves it intact, and validating the repaired email clears it.
+See sample: [`business-state-must-have-a-domain-owner.good.al`](business-state-must-have-a-domain-owner.good.al). Customer owns the opened issue; successful job cleanup leaves it intact, and only the validated resolution command clears it.
 
 ## Anti Pattern
 
-- A business indicator is an `exist` FlowField over error-bearing queue or staging records, and a visible cleanup path removes those records without repairing the underlying business data.
-- A business consumer treats execution success, transport acceptance, or absence of a technical record as approval or resolution without the corresponding domain evidence.
-- A retry or transmission failure overwrites an existing business decision with attempt state, losing the distinction between the decision and its delivery.
+An authoritative business indicator depends on whether error-bearing execution or staging rows exist, while those rows can be deleted without resolving the recorded issue. Identify the obligation, its existence-based reader, the applicable deletion path, and the business result that incorrectly changes. The same defect can be introduced by changing only a page/report/codeunit consumer or a cleanup routine; adding fields is not required.
 
-Identify the business fact, the authoritative read or write, the technical operation that changes its meaning or lifetime, and the resulting incorrect outcome. These are ownership defects even when the field is on a custom table or the only change is in a page, report, or codeunit consumer.
-
-See sample: [`business-state-must-have-a-domain-owner.bad.al`](business-state-must-have-a-domain-owner.bad.al). Removing the last matching inactive job makes the customer repair indicator false while the customer's email remains empty.
+See sample: [`business-state-must-have-a-domain-owner.bad.al`](business-state-must-have-a-domain-owner.bad.al). The one-off inspection records an open issue on Job Queue Entry and returns successfully. Normal finalization deletes the entry, so the customer's FlowField loses the issue without any resolution command. No custom cleanup procedure is needed to trigger the failure.
 
 ## References
 
-- [Table extension objects](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-table-ext-object)
+- [Successful non-recurring jobs are removed](https://learn.microsoft.com/en-us/dynamics365/business-central/admin-job-queues-schedule-tasks)
+- [Job Queue Entry: result handling and finalization](https://github.com/microsoft/BCApps/blob/3df81bcd9eff84993c51c80b4c20350665ee1f52/src/Layers/W1/BaseApp/Modules/System/JobQueue/JobQueueEntry.Table.al#L593-L647) and [cleanup conditions](https://github.com/microsoft/BCApps/blob/3df81bcd9eff84993c51c80b4c20350665ee1f52/src/Layers/W1/BaseApp/Modules/System/JobQueue/JobQueueEntry.Table.al#L990-L1012)
 - [FlowFields and the Exist calculation](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-flowfields)
-- [Record.Delete](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-delete-method)
