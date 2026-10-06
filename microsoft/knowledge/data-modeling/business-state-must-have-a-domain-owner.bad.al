@@ -49,7 +49,7 @@ codeunit 50100 "Sample Contact Inspection"
             exit;
 
         Rec."Sample Open Contact Issue" := true;
-        Rec.Modify(true);
+        Rec.Modify();
     end;
 
     procedure HasOpenContactIssue(CustomerNo: Code[20]): Boolean
