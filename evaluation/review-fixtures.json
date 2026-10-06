@@ -14,6 +14,7 @@
     "data-modeling": {
       "articles": [
         "activate-new-price-calculation-handler-via-onfindsupportedsetup",
+        "business-state-must-have-a-domain-owner",
         "check-blocked-in-referencing-code-not-in-master",
         "code-must-not-change-workdate",
         "custom-document-dispatch-must-not-bypass-report-selections",
