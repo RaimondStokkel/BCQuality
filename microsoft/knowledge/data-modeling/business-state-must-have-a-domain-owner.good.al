@@ -23,17 +23,6 @@ tableextension 50100 "Sample Contact Customer" extends Customer
     end;
 }
 
-tableextension 50101 "Sample Contact Job" extends "Job Queue Entry"
-{
-    fields
-    {
-        field(50100; "Sample Account Id"; Guid)
-        {
-            DataClassification = CustomerContent;
-        }
-    }
-}
-
 codeunit 50100 "Sample Contact Inspection"
 {
     TableNo = "Job Queue Entry";
@@ -41,11 +30,16 @@ codeunit 50100 "Sample Contact Inspection"
     trigger OnRun()
     var
         Customer: Record Customer;
+        TargetRecordId: RecordId;
+        TargetRecord: RecordRef;
     begin
         Rec.TestField("Recurring Job", false);
         Rec.TestField("Manual Recurrence", false);
-        Rec.TestField("Sample Account Id");
-        Customer.GetBySystemId(Rec."Sample Account Id");
+        TargetRecordId := Rec."Record ID to Process";
+        if TargetRecordId.TableNo() <> Database::Customer then
+            Error(CustomerRecordRequiredErr);
+        TargetRecord.Get(TargetRecordId);
+        TargetRecord.SetTable(Customer);
         if Customer."E-Mail" <> '' then
             exit;
 
@@ -69,4 +63,7 @@ codeunit 50100 "Sample Contact Inspection"
         Customer.ResolveContactIssue(Email);
         Customer.Modify(true);
     end;
+
+    var
+        CustomerRecordRequiredErr: Label 'Record ID to Process must reference a customer.';
 }

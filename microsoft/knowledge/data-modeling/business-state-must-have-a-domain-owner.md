@@ -23,7 +23,7 @@ Persist an unresolved business issue on the entity that owns its resolution, or 
 - Technical indicators such as "a job is scheduled" may legitimately depend on queue existence. Stable references, disposable execution metadata, and caches whose readers fall back to domain data are also valid. A table extension, ordinary FlowField, or buffer name alone is not evidence of this defect.
 - When the supplied source and documented lifecycle do not establish the business consumer and deletion/resolution mismatch, emit no ownership finding. Existing persisted data needs a migration assessment before changing its owner.
 
-See sample: [`business-state-must-have-a-domain-owner.good.al`](business-state-must-have-a-domain-owner.good.al). Customer owns the opened issue; successful job cleanup leaves it intact, and only the validated resolution command clears it.
+See sample: [`business-state-must-have-a-domain-owner.good.al`](business-state-must-have-a-domain-owner.good.al). Customer owns the opened issue; successful job cleanup leaves it intact, and only the validated resolution command clears it. The caller supplies `Customer.RecordId` in the existing `Record ID to Process` field; the good example does not extend Job Queue Entry.
 
 ## Anti Pattern
 
@@ -36,3 +36,4 @@ See sample: [`business-state-must-have-a-domain-owner.bad.al`](business-state-mu
 - [Successful non-recurring jobs are removed](https://learn.microsoft.com/en-us/dynamics365/business-central/admin-job-queues-schedule-tasks)
 - [Job Queue Entry: result handling and finalization](https://github.com/microsoft/BCApps/blob/3df81bcd9eff84993c51c80b4c20350665ee1f52/src/Layers/W1/BaseApp/Modules/System/JobQueue/JobQueueEntry.Table.al#L593-L647) and [cleanup conditions](https://github.com/microsoft/BCApps/blob/3df81bcd9eff84993c51c80b4c20350665ee1f52/src/Layers/W1/BaseApp/Modules/System/JobQueue/JobQueueEntry.Table.al#L990-L1012)
 - [FlowFields and the Exist calculation](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-flowfields)
+- [Job Queue Entry fields, including Record ID to Process](https://learn.microsoft.com/en-us/dynamics365/business-central/application/base-application/table/system.threading.job-queue-entry)
