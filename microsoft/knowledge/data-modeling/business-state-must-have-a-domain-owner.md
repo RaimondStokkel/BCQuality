@@ -27,7 +27,7 @@ See sample: [`business-state-must-have-a-domain-owner.good.al`](business-state-m
 
 ## Anti Pattern
 
-An authoritative business indicator depends on whether error-bearing execution or staging rows exist, while those rows can be deleted without resolving the recorded issue. Identify the obligation, its existence-based reader, the applicable deletion path, and the business result that incorrectly changes. The same defect can be introduced by changing only a page/report/codeunit consumer or a cleanup routine; adding fields is not required.
+An authoritative business indicator depends on whether execution or staging rows exist, while those rows can be deleted without satisfying the business completion or resolution condition. Identify the obligation or completion condition, its existence-based reader, the applicable deletion path, and the business result that incorrectly changes. The same defect can be introduced by changing only a page/report/codeunit consumer or a cleanup routine; adding fields is not required.
 
 See sample: [`business-state-must-have-a-domain-owner.bad.al`](business-state-must-have-a-domain-owner.bad.al). The one-off inspection records an open issue on Job Queue Entry and returns successfully. Normal finalization deletes the entry, so the customer's FlowField loses the issue without any resolution command. No custom cleanup procedure is needed to trigger the failure.
 
@@ -35,5 +35,6 @@ See sample: [`business-state-must-have-a-domain-owner.bad.al`](business-state-mu
 
 - [Successful non-recurring jobs are removed](https://learn.microsoft.com/en-us/dynamics365/business-central/admin-job-queues-schedule-tasks)
 - [Job Queue Entry: result handling and finalization](https://github.com/microsoft/BCApps/blob/3df81bcd9eff84993c51c80b4c20350665ee1f52/src/Layers/W1/BaseApp/Modules/System/JobQueue/JobQueueEntry.Table.al#L593-L647) and [cleanup conditions](https://github.com/microsoft/BCApps/blob/3df81bcd9eff84993c51c80b4c20350665ee1f52/src/Layers/W1/BaseApp/Modules/System/JobQueue/JobQueueEntry.Table.al#L990-L1012)
+- [Standard dispatcher: run, reload, and finalize the entry](https://github.com/microsoft/BCApps/blob/3df81bcd9eff84993c51c80b4c20350665ee1f52/src/Layers/W1/BaseApp/Modules/System/JobQueue/JobQueueDispatcher.Codeunit.al#L76-L125)
 - [FlowFields and the Exist calculation](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-flowfields)
 - [Job Queue Entry fields, including Record ID to Process](https://learn.microsoft.com/en-us/dynamics365/business-central/application/base-application/table/system.threading.job-queue-entry)
