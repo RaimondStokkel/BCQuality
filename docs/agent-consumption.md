@@ -90,10 +90,12 @@ at Entry.
 | `skills/read.md`, `skills/do.md`, `skills/write.md` | Stable knowledge, action-skill, and authoring contracts. |
 | `skills/al-code-review/SKILL.md` | Host-format plugin adapter. |
 | `<layer>/knowledge/<domain>/` | Atomic articles and optional sibling samples. |
-| `<layer>/skills/` | Layer-owned action skills. |
+| `<layer>/skills/` | Layer-owned review and plan-guidance action skills. |
+| `schemas/` | JSON Schemas for the skill index and report contracts. |
+| `plugin.json`, `.claude-plugin/` | Host plugin and marketplace manifests. |
 | `docs/` | Partner guides and integration references. |
 | `evaluation/` | Neutral review fixtures and scoring contract. |
-| `tools/` | Knowledge-index and evaluation tooling. |
+| `tools/` | Knowledge discovery and retrieval, skill resolution, report validation, SARIF export, and evaluation tooling. |
 | `.github/` | Validation and repository workflows. |
 
 Layers are `microsoft`, `community`, and `custom`; Custom is a template for
@@ -184,12 +186,12 @@ drive a review/fix loop. Implementation stays in the consuming workflow.
 ### 7. Orchestrator integrates
 The orchestrator turns findings into PR comments, build gates, or IDE diagnostics. It can feed read-only guidance into its own implementation phases, preserving all existing approvals and delivery gates.
 
-## Provisional repository-specific development integration
+## Plan guidance integration (preview)
 
 A repository-specific workflow can consume this read-only foundation before
 authoring while retaining its independent final review. This is the intended
-integration boundary proposed by `al-development-plan`, not a shipped consumer
-integration or a stable plugin surface:
+integration boundary for the preview `al-development-plan` skill, not a shipped
+consumer integration or a stable plugin surface:
 
 1. Investigate and produce the consumer's normal initial plan. Normalize any
    consumer-specific format outside BCQuality. A full serialized plan document
@@ -204,9 +206,9 @@ integration or a stable plugin surface:
 3. Execute the dispatched `al-development-plan` skill. Persist the unchanged
    report and provenance **after** any consumer state initialization or cleanup
    that could erase them. BCQuality does not own the state directory or lifecycle.
-4. Inject relevant constraints and validation considerations into the existing
-   Baseline, Implement, propagation (such as MiApp), and Critique phases, or
-   equivalents. Re-enrich on material plan or applicability changes; preserve
+4. Inject relevant constraints and validation considerations into the
+   workflow's existing test, implementation, propagation, and critique phases,
+   or equivalents. Re-enrich on material plan or applicability changes; preserve
    the relationship between plan version, guidance, and implementation attempt.
 5. Run an independent final BCQuality review against the completed diff using
    the **same recorded immutable checkout** used for enrichment. Review the

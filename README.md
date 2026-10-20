@@ -93,8 +93,8 @@ the review can still discover knowledge by reading the folders.
 
 ## Scope
 
-Today's curated content covers **technical AL code review** and a focused
-**Supply Chain Management (SCM)** functional domain. It augments
+Today's curated content covers **technical AL code review** and focused
+**Supply Chain Management (SCM)** and **Finance** functional domains. It augments
 the agent's judgment; it is not an exhaustive BC manual or a substitute for
 compilation, analyzers, tests, or human review. See
 [coverage and limits](docs/using-bcquality.md#coverage-and-limits) for the
@@ -102,37 +102,26 @@ available domains and the difference between a folder review and a comparison.
 Mechanical issues already enforced by the AL compiler or standard analyzers are
 intentionally left to those deterministic tools rather than duplicated here.
 
-BCQuality defines a provisional internal, read-only `al-development-plan`
-action-skill contract that selects relevant constraints before a consumer
-implements its own existing plan. It is not registered as a standalone plugin
-skill and does not change the plugin version. Consumer-owner agreement and a
-runtime pilot are required before treating it as a stable public surface.
-
-Repository-specific orchestrators retain planning, implementation, approvals,
-tests, environment, propagation, and delivery ownership. The intended flow is
-consumer analysis and normalized plan -> read-only BCQuality guidance ->
-existing implementation phases -> independent final BCQuality review ->
-delivery. Consumer uptake and a real runtime pilot are follow-up work, not
-implemented integrations or demonstrated authoring improvements.
-
-`no-knowledge` means no additional applicable BCQuality constraints, with empty
-`knowledge`; it does not make a plan unsafe or prevent the consumer from using
-its ordinary gates. Retrieval failures and materially unresolved conditional
-guidance are distinct outcomes, not empty knowledge. Do not add generic advice
-just to avoid a `no-knowledge` result.
-
 The [SCM domain](microsoft/knowledge/scm/) covers selected inventory, costing,
-reservation, tracking, and warehouse/posting workflows, not exhaustive supply
-chain validation. Broader functional coverage such as Finance, Manufacturing,
-Jobs, and Service, and technologies such as PowerShell, pipelines, and Power
-Platform, remain valid future scope, **not current coverage claims**.
+reservation, tracking, and warehouse/posting workflows. The
+[Finance domain](microsoft/knowledge/finance/) covers selected journal posting,
+financial ledger, application, VAT, and posting-dimension workflows. Neither is
+exhaustive functional validation. Broader functional coverage such as
+Manufacturing, Jobs, and Service, and technologies such as PowerShell,
+pipelines, and Power Platform, remain valid future scope, **not current
+coverage claims**.
 
-## Plan-enrichment follow-up scope
+### Preview: guidance before implementation
 
-Consumer agreement, consumer-owned persistence and phase injection, a pinned
-baseline comparison, and a runtime pilot remain follow-up work. BCQuality does
-not claim improved repairs or authoring effectiveness from this provisional
-contract alone.
+BCQuality can also apply its knowledge **before code is written**. The
+read-only `al-development-plan` skill takes an existing AL development plan
+and returns the BCQuality constraints and validation considerations that apply
+to it. Your workflow keeps ownership of planning, implementation, tests,
+approvals, and delivery, and should still review the completed change.
+
+This capability is a preview for explicit integrations. It is not yet exposed
+by the standalone plugin, and its contract may change based on pilot feedback.
+See [plan guidance integration](docs/agent-consumption.md#plan-guidance-integration-preview).
 
 ## What's in this repo
 
